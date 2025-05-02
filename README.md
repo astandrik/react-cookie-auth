@@ -1,17 +1,32 @@
-# Auth Library
+# react-cookie-auth
 
 [![npm version](https://img.shields.io/npm/v/react-cookie-auth.svg)](https://www.npmjs.com/package/react-cookie-auth)
 
-A standalone authentication library for React applications that implements cookie-based authentication with token refresh logic and Page Visibility API integration to prevent refresh token storms.
+A secure authentication library for React applications that implements HTTP-only cookie-based authentication with automatic token refresh, Page Visibility API integration, and Redux state management.
 
-## Features
+## Table of Contents
 
-- Complete authentication flow (login, logout, token refresh)
-- Cookie-based authentication
-- Redux integration for state management
-- React components for auth modals
-- TypeScript support
-- Page Visibility API implementation to prevent refresh token storms after sleep/wake cycles
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Components](#components)
+- [API Reference](#api-reference)
+- [Security Benefits](#security-benefits)
+- [Comparison with Other Solutions](#comparison-with-other-solutions)
+- [Advanced Usage](#advanced-usage)
+- [Troubleshooting](#troubleshooting)
+- [Storybook](#storybook)
+- [License](#license)
+
+## Key Features
+
+- **Secure Authentication**: HTTP-only cookie-based auth that mitigates XSS attacks
+- **Complete Flow**: Login, logout, and token refresh functionality out of the box
+- **Sleep/Wake Protection**: Page Visibility API integration prevents refresh token storms
+- **State Management**: Redux integration with useful selectors and actions
+- **UI Components**: Ready-to-use auth modals with customization options
+- **Developer Experience**: TypeScript support and comprehensive documentation
 
 ## Installation
 
@@ -24,29 +39,25 @@ npm install react-cookie-auth
 ```jsx
 import { Auth, AuthModal, LogoutModal, initAuth } from 'react-cookie-auth';
 import React from 'react';
+import { Provider } from 'react-redux';
 
-// Initialize the auth library
+// Step 1: Initialize the auth library with your API endpoints
 const { store, hooks, actions, selectors } = initAuth({
   apiBaseUrl: 'https://api.example.com',
-  loginEndpoint: '/auth/login/',
-  refreshTokenEndpoint: '/auth/token/refresh/',
-  logoutEndpoint: '/auth/logout/',
-  refreshTokenInterval: 15 * 60 * 1000, // 15 minutes
-  maxRetryAttempts: 3,
-  retryDelay: 1000,
-  onLoginSuccess: user => {
-    console.log('User logged in', user);
-  },
-  onLogoutSuccess: () => {
-    console.log('User logged out');
-  },
-  onAuthError: error => {
-    console.error('Auth error', error);
-  },
+  loginEndpoint: '/auth/login/', // Your login endpoint
+  refreshTokenEndpoint: '/auth/token/refresh/', // Token refresh endpoint
+  logoutEndpoint: '/auth/logout/', // Logout endpoint
+  refreshTokenInterval: 15 * 60 * 1000, // Refresh every 15 minutes
+  maxRetryAttempts: 3, // Max retry attempts on failure
+  retryDelay: 1000, // Delay between retries
+  onLoginSuccess: user => console.log('User logged in', user),
+  onLogoutSuccess: () => console.log('User logged out'),
+  onAuthError: error => console.error('Auth error', error),
 });
 
-// Use in your app
+// Step 2: Use in your app component
 function App() {
+  // Extract hooks for auth operations
   const { useRefreshToken, useLoginMutation, useLogoutMutation } = hooks;
   const [loginMutation] = useLoginMutation();
   const [logoutMutation] = useLogoutMutation();
@@ -57,11 +68,13 @@ function App() {
 
   return (
     <Provider store={store}>
+      {/* Step 3: Add Auth wrapper to manage token refresh */}
       <Auth
         refreshFunction={refreshFunction}
         refreshInterval={15 * 60 * 1000}
         onAuthStateChange={isLoggedIn => console.log('Auth state changed', isLoggedIn)}
       >
+        {/* Step 4: Use auth modals where needed */}
         <AuthModal
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}
@@ -95,18 +108,18 @@ function App() {
 
 The `initAuth` function accepts the following configuration options:
 
-| Option               | Type     | Description                                          |
-| -------------------- | -------- | ---------------------------------------------------- |
-| apiBaseUrl           | string   | The base URL for API requests                        |
-| loginEndpoint        | string   | The endpoint for login requests                      |
-| refreshTokenEndpoint | string   | The endpoint for refresh token requests              |
-| logoutEndpoint       | string   | The endpoint for logout requests                     |
-| refreshTokenInterval | number   | The interval in milliseconds between token refreshes |
-| maxRetryAttempts     | number   | Maximum number of retry attempts for token refresh   |
-| retryDelay           | number   | Delay between retry attempts in milliseconds         |
-| onLoginSuccess       | function | Callback function when login is successful           |
-| onLogoutSuccess      | function | Callback function when logout is successful          |
-| onAuthError          | function | Callback function when auth error occurs             |
+| Option               | Type     | Description                                        |
+| -------------------- | -------- | -------------------------------------------------- |
+| apiBaseUrl           | string   | Base URL for API requests                          |
+| loginEndpoint        | string   | Endpoint for login requests                        |
+| refreshTokenEndpoint | string   | Endpoint for refresh token requests                |
+| logoutEndpoint       | string   | Endpoint for logout requests                       |
+| refreshTokenInterval | number   | Interval in milliseconds between token refreshes   |
+| maxRetryAttempts     | number   | Maximum number of retry attempts for token refresh |
+| retryDelay           | number   | Delay between retry attempts in milliseconds       |
+| onLoginSuccess       | function | Callback function when login is successful         |
+| onLogoutSuccess      | function | Callback function when logout is successful        |
+| onAuthError          | function | Callback function when auth error occurs           |
 
 ## Components
 
@@ -116,10 +129,10 @@ The main authentication component that handles token refresh logic and Page Visi
 
 ```jsx
 <Auth
-  refreshFunction={refreshFunction}
-  refreshInterval={refreshInterval}
-  onAuthStateChange={handleAuthStateChange}
-  invalidateAuthTags={invalidateTags}
+  refreshFunction={refreshFunction} // Function to refresh the token
+  refreshInterval={refreshInterval} // How often to refresh (ms)
+  onAuthStateChange={handleAuthStateChange} // Called when auth state changes
+  invalidateAuthTags={invalidateTags} // Optional: refresh cached data
 >
   {children}
 </Auth>
@@ -131,13 +144,13 @@ A modal component for login/signup forms.
 
 ```jsx
 <AuthModal
-  isOpen={isOpen}
-  onClose={handleClose}
-  onSubmit={handleSubmit}
+  isOpen={isOpen} // Controls visibility
+  onClose={handleClose} // Called when modal is closed
+  onSubmit={handleSubmit} // Called with form data on submit
   config={{
+    // Customize appearance
     title: 'Login',
     submitButtonText: 'Submit',
-    // other config options
   }}
 />
 ```
@@ -148,10 +161,11 @@ A modal component for confirming logout actions.
 
 ```jsx
 <LogoutModal
-  isOpen={isOpen}
-  onClose={handleClose}
-  onLogout={handleLogout}
+  isOpen={isOpen} // Controls visibility
+  onClose={handleClose} // Called when modal is closed
+  onLogout={handleLogout} // Called when logout is confirmed
   config={{
+    // Customize appearance
     title: 'Logout',
     message: 'Are you sure?',
     confirmButtonText: 'Yes',
@@ -177,6 +191,24 @@ A modal component for confirming logout actions.
 
 - `isAuthenticated`: Selector to check if the user is authenticated
 - `getUser`: Selector to get the current user from the store
+
+## Security Benefits
+
+- **HTTP-Only Cookies**: Prevents JavaScript from accessing authentication tokens, protecting against XSS attacks
+- **Automatic Token Refresh**: Maintains authentication state securely without user intervention
+- **Page Visibility Handling**: Prevents refresh token storms after device sleep/wake cycles
+- **Secure State Management**: Integrates with Redux for predictable state management
+- **No Local Storage**: Avoids storing sensitive auth information in vulnerable browser storage
+
+## Comparison with Other Solutions
+
+| Feature                   | react-cookie-auth | JWT in localStorage | Auth0/Okta  |
+| ------------------------- | ----------------- | ------------------- | ----------- |
+| XSS Protection            | ✅ High           | ❌ Low              | ✅ High     |
+| Automatic Token Refresh   | ✅ Built-in       | ⚠️ Manual           | ✅ Built-in |
+| Sleep/Wake Cycle Handling | ✅ Built-in       | ❌ None             | ⚠️ Varies   |
+| Implementation Complexity | Medium            | Low                 | High        |
+| External Service Required | ❌ No             | ❌ No               | ✅ Yes      |
 
 ## Advanced Usage
 
@@ -220,13 +252,27 @@ function CustomLoginForm() {
 }
 ```
 
+## Troubleshooting
+
+### Common Issues
+
+- **Token Not Refreshing**: Ensure your backend supports the refresh token endpoint and returns proper HTTP-only cookies.
+- **Authentication State Lost**: Check if `SameSite` and `Secure` attributes are set correctly on your cookies.
+
+- **CORS Issues**: Your backend needs to allow credentials and have proper CORS headers set.
+
+  ```
+  Access-Control-Allow-Credentials: true
+  Access-Control-Allow-Origin: https://yourdomain.com
+  ```
+
+- **Redux Integration**: If using with existing Redux store, make sure to properly combine the auth reducer with your application's reducers.
+
 ## Storybook
 
-This library includes a Storybook setup to showcase and document the components. Storybook provides an isolated environment for developing and testing UI components, with interactive controls and documentation.
+This library includes a Storybook setup to showcase and document the components.
 
 ### Running Storybook
-
-To start the Storybook development server:
 
 ```bash
 npm run storybook
@@ -236,19 +282,9 @@ This will launch Storybook on http://localhost:6006 where you can browse and int
 
 ### Documented Components
 
-The following components have stories:
-
-- **Auth**: Shows the authentication wrapper component with different configurations
-- **AuthModal**: Shows the login form modal with various states (default, loading, error) and styling options
-- **LogoutModal**: Shows the logout confirmation modal with different configurations
-
-### Interactive Documentation
-
-Each component in Storybook includes:
-
-- **Controls**: Modify component props in real-time to see how they affect rendering
-- **Actions**: View callbacks triggered by user interactions
-- **Docs**: Detailed documentation with usage examples and prop descriptions
+- **Auth**: Authentication wrapper component with different configurations
+- **AuthModal**: Login form modal with various states and styling options
+- **LogoutModal**: Logout confirmation modal with different configurations
 
 ### Building Storybook
 
@@ -257,8 +293,6 @@ To build a static version of Storybook for deployment:
 ```bash
 npm run build-storybook
 ```
-
-This creates a static web application in the `storybook-static` directory that can be deployed to any web server.
 
 ## License
 

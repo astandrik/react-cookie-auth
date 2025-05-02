@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { getItemFromStorage, setItemToStorage } from '../utils/storage';
-import { AuthState, LocalStorageKeys, User } from '../utils/types';
+import { AuthReducer, AuthState, LocalStorageKeys, User } from '../utils/types';
 
 /**
  * Initialize user from localStorage if available
@@ -45,5 +45,5 @@ export const { setUser } = authSlice.actions;
 export const selectUser = (state: { auth: AuthState }) => state.auth.user;
 export const isAuthenticated = (state: { auth: AuthState }) => !!state.auth.user;
 
-// Export reducer
-export default authSlice.reducer;
+// Export reducer with explicit type annotation
+export default authSlice.reducer as AuthReducer;

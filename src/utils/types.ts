@@ -67,3 +67,56 @@ export interface AuthLibConfig {
   onLogoutSuccess?: () => void;
   onAuthError?: (error: any) => void;
 }
+
+/**
+ * Interface for the Redux store type returned by initAuth
+ */
+export interface AuthStore {
+  auth: AuthState;
+  [key: string]: any; // Allow for dynamic reducer paths
+}
+
+/**
+ * Interface for the hooks returned by the initAuth function
+ */
+export interface AuthHooks {
+  useRefreshToken: (refreshTokenMutation: any) => () => Promise<void>;
+  useLoginMutation: any;
+  useLogoutMutation: any;
+  useRefreshTokenMutation: any;
+}
+
+/**
+ * Interface for the actions returned by the initAuth function
+ */
+export interface AuthActions {
+  setUser: (user: User | null) => void;
+}
+
+/**
+ * Interface for the selectors returned by the initAuth function
+ */
+export interface AuthSelectors {
+  isAuthenticated: (state: { auth: AuthState }) => boolean;
+  getUser: (state: { auth: AuthState }) => User | null;
+}
+
+/**
+ * Interface for the complete object returned by the initAuth function
+ */
+export interface AuthLibInstance {
+  store: {
+    dispatch: any;
+    getState: () => AuthStore;
+    subscribe: any;
+    replaceReducer: any;
+  };
+  hooks: AuthHooks;
+  actions: AuthActions;
+  selectors: AuthSelectors;
+}
+
+/**
+ * Type for the auth reducer function
+ */
+export type AuthReducer = (state: AuthState | undefined, action: any) => AuthState;

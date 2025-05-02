@@ -3,13 +3,23 @@ import { configureStore } from '@reduxjs/toolkit';
 import { useRefreshToken } from './hooks/useRefreshToken';
 import { createAuthApi } from './state/authApi';
 import authReducer, { isAuthenticated, selectUser, setUser } from './state/authSlice';
-import { AuthLibConfig } from './utils/types';
+import { AuthLibConfig, AuthLibInstance } from './utils/types';
 
 // Re-export components
 export * from './components';
 
 // Re-export types
-export type { AuthErrorType, User, AuthState, AuthLibConfig } from './utils/types';
+export type {
+  AuthErrorType,
+  User,
+  AuthState,
+  AuthLibConfig,
+  AuthLibInstance,
+  AuthStore,
+  AuthHooks,
+  AuthActions,
+  AuthSelectors,
+} from './utils/types';
 
 // Re-export utility functions
 export { getAuthErrorMessage, isAuthError, getAuthErrorType } from './utils/errors';
@@ -27,7 +37,7 @@ export {
  * @param config The configuration for the authentication library
  * @returns An object containing Redux store, hooks, and API endpoints
  */
-export function initAuth(config: AuthLibConfig) {
+export function initAuth(config: AuthLibConfig): AuthLibInstance {
   // Create the auth API with the provided configuration
   const authApi = createAuthApi(config);
 
