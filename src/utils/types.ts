@@ -2,8 +2,8 @@
  * LocalStorage keys used by the authentication library
  */
 export enum LocalStorageKeys {
-  CURRENT_USER = 'rzf_auth_current_user',
-  LAST_REFRESH_TIME = 'rzf_auth_last_refresh_time',
+  CURRENT_USER = 'react_cookie_auth_current_user',
+  LAST_REFRESH_TIME = 'react_cookie_auth_last_refresh_time',
 }
 
 /**
