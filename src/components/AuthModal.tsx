@@ -1,18 +1,18 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import React, { ChangeEvent, FormEvent, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { UseLoginMutation } from '../state/authApi'
-import { setUser } from '../state/authSlice'
-import { getAuthErrorMessage } from '../utils/errors'
-import { AuthErrorType } from '../utils/types'
-import { Modal } from './Modal'
+import { UseLoginMutation } from '../state/authApi';
+import { setUser } from '../state/authSlice';
+import { getAuthErrorMessage } from '../utils/errors';
+import { AuthErrorType } from '../utils/types';
+import { Modal } from './Modal';
 
 /**
  * Props for the error display component
  */
 interface AuthErrorDisplayProps {
-  error: any
-  errorClassName?: string
+  error: any;
+  errorClassName?: string;
 }
 
 /**
@@ -22,54 +22,52 @@ const AuthErrorDisplay: React.FC<AuthErrorDisplayProps> = ({
   error,
   errorClassName = 'text-red-500 w-full mb-4',
 }) => {
-  if (!error) return null
+  if (!error) return null;
 
-  const errorData = (error as any)?.data
-  if (!errorData)
-    return <div className={errorClassName}>Authentication failed</div>
+  const errorData = (error as any)?.data;
+  if (!errorData) return <div className={errorClassName}>Authentication failed</div>;
 
-  let errorMessage = 'Failed to log in'
+  let errorMessage = 'Failed to log in';
 
-  if (
-    errorData.error_type &&
-    Object.values(AuthErrorType).includes(errorData.error_type)
-  ) {
-    errorMessage = getAuthErrorMessage(errorData.error_type as AuthErrorType)
+  if (errorData.error_type && Object.values(AuthErrorType).includes(errorData.error_type)) {
+    errorMessage = getAuthErrorMessage(errorData.error_type as AuthErrorType);
   } else if (errorData.detail) {
-    errorMessage = errorData.detail
+    errorMessage = errorData.detail;
   }
 
-  return <div className={errorClassName}>{errorMessage}</div>
-}
+  return <div className={errorClassName}>{errorMessage}</div>;
+};
 
 /**
  * AuthModal configuration options
  */
 export interface AuthModalConfig {
-  titleText?: string
-  usernameLabel?: string
-  usernamePlaceholder?: string
-  passwordLabel?: string
-  passwordPlaceholder?: string
-  submitButtonText?: string
-  loadingText?: string
-  successMessage?: string
-  modalSize?: 'small' | 'medium' | 'large' | 'xl' | '2xl' | '3xl' | 'full'
-  formClassName?: string
-  inputClassName?: string
-  buttonClassName?: string
-  errorClassName?: string
-  onLoginSuccess?: (username: string) => void
+  titleText?: string;
+  usernameLabel?: string;
+  usernamePlaceholder?: string;
+  passwordLabel?: string;
+  passwordPlaceholder?: string;
+  submitButtonText?: string;
+  loadingText?: string;
+  successMessage?: string;
+  modalSize?: 'small' | 'medium' | 'large' | 'xl' | '2xl' | '3xl' | 'full';
+  formClassName?: string;
+  inputClassName?: string;
+  buttonClassName?: string;
+  errorClassName?: string;
+  onLoginSuccess?: (username: string) => void;
+  showRememberMe?: boolean;
+  rememberMeLabel?: string;
 }
 
 /**
  * Props for the AuthModal component
  */
 export interface AuthModalProps {
-  isOpen: boolean
-  onClose: () => void
-  useLoginMutation: UseLoginMutation
-  config?: AuthModalConfig
+  isOpen: boolean;
+  onClose: () => void;
+  useLoginMutation: UseLoginMutation;
+  config?: AuthModalConfig;
 }
 
 /**
@@ -96,58 +94,68 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     inputClassName = 'border rounded p-2 w-full mt-1 mb-4',
     buttonClassName = 'bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full',
     errorClassName = 'text-red-500 w-full mb-4',
+    showRememberMe = false,
+    rememberMeLabel = 'Remember me',
     onLoginSuccess,
-  } = config
+  } = config;
 
   // Component state
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-  })
+    rememberMe: false,
+  });
 
   // Redux hooks
-  const dispatch = useDispatch()
-  const [login, { isLoading, error }] = useLoginMutation
+  const dispatch = useDispatch();
+  const [login, { isLoading, error }] = useLoginMutation;
 
   // Form handlers
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((data) => ({
+    const { name, value } = e.target;
+    setFormData(data => ({
       ...data,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const data = await login(formData).unwrap()
+      // Extract relevant form data for login
+      const { username, password, rememberMe } = formData;
+      const data = await login({
+        username,
+        password,
+        remember: rememberMe, // Include remember me flag in the API call
+      }).unwrap();
+
       // Update Redux state
-      dispatch(setUser(data.user))
+      dispatch(setUser(data.user));
       // Close the modal
-      onClose()
+      onClose();
       // Call success callback if provided
       if (onLoginSuccess) {
-        onLoginSuccess(data.user.username)
+        onLoginSuccess(data.user.username);
       }
     } catch (err) {
       // Error is handled by the AuthErrorDisplay component
-      console.error('Failed to login:', err)
+      console.error('Failed to login:', err);
     }
-  }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size={modalSize}>
       <div className={formClassName}>
-        <h2 className='text-2xl font-semibold mb-4'>{titleText}</h2>
+        <h2 className="text-2xl font-semibold mb-4">{titleText}</h2>
         <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor='username' className='block text-gray-700'>
+            <label htmlFor="username" className="block text-gray-700">
               {usernameLabel}
             </label>
             <input
-              id='username'
-              name='username'
+              id="username"
+              name="username"
               className={inputClassName}
               value={formData.username}
               placeholder={usernamePlaceholder}
@@ -156,13 +164,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             />
           </div>
           <div>
-            <label htmlFor='password' className='block text-gray-700'>
+            <label htmlFor="password" className="block text-gray-700">
               {passwordLabel}
             </label>
             <input
-              type='password'
-              id='password'
-              name='password'
+              type="password"
+              id="password"
+              name="password"
               value={formData.password}
               onChange={handleChange}
               className={inputClassName}
@@ -171,19 +179,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             />
           </div>
 
-          {error && (
-            <AuthErrorDisplay error={error} errorClassName={errorClassName} />
+          {showRememberMe && (
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={e =>
+                  setFormData(data => ({
+                    ...data,
+                    rememberMe: e.target.checked,
+                  }))
+                }
+                className="mr-2"
+              />
+              <label htmlFor="rememberMe" className="text-gray-700">
+                {rememberMeLabel}
+              </label>
+            </div>
           )}
 
-          <button
-            type='submit'
-            className={buttonClassName}
-            disabled={isLoading}
-          >
+          {error && <AuthErrorDisplay error={error} errorClassName={errorClassName} />}
+
+          <button type="submit" className={buttonClassName} disabled={isLoading}>
             {isLoading ? loadingText : submitButtonText}
           </button>
         </form>
       </div>
     </Modal>
-  )
-}
+  );
+};

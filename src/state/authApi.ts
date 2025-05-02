@@ -1,13 +1,13 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { setItemToStorage } from '../utils/storage'
+import { setItemToStorage } from '../utils/storage';
 import {
   AuthLibConfig,
   LocalStorageKeys,
   LoginCredentials,
   RefreshTokenResponse,
   TokenResponse,
-} from '../utils/types'
+} from '../utils/types';
 
 /**
  * Creates an authentication API service with RTK Query
@@ -20,9 +20,9 @@ export const createAuthApi = (config: AuthLibConfig) => {
   const api = createApi({
     reducerPath: 'authApi',
     baseQuery: fetchBaseQuery({ baseUrl: config.apiBaseUrl }),
-    endpoints: (builder) => ({
+    endpoints: builder => ({
       login: builder.mutation<TokenResponse, LoginCredentials>({
-        query: (credentials) => ({
+        query: credentials => ({
           url: config.loginEndpoint,
           method: 'POST',
           body: credentials,
@@ -30,19 +30,19 @@ export const createAuthApi = (config: AuthLibConfig) => {
         // Set the LAST_REFRESH_TIME on successful login to prevent unnecessary token refresh
         onQueryStarted: async (_, { queryFulfilled }) => {
           try {
-            await queryFulfilled
+            await queryFulfilled;
             // Set the current time as the last refresh time
-            setItemToStorage(LocalStorageKeys.LAST_REFRESH_TIME, Date.now())
+            setItemToStorage(LocalStorageKeys.LAST_REFRESH_TIME, Date.now());
 
             // Call the optional success callback if provided
-            const result = await queryFulfilled
+            const result = await queryFulfilled;
             if (config.onLoginSuccess && result.data.user) {
-              config.onLoginSuccess(result.data.user)
+              config.onLoginSuccess(result.data.user);
             }
           } catch (error) {
             // Login failed, call the error callback if provided
             if (config.onAuthError) {
-              config.onAuthError(error)
+              config.onAuthError(error);
             }
           }
         },
@@ -64,39 +64,35 @@ export const createAuthApi = (config: AuthLibConfig) => {
         // Clear all auth-related data on logout
         onQueryStarted: async (_, { queryFulfilled }) => {
           try {
-            await queryFulfilled
+            await queryFulfilled;
             // Clear LAST_REFRESH_TIME to ensure consistent cleanup
-            localStorage.removeItem(LocalStorageKeys.LAST_REFRESH_TIME)
+            localStorage.removeItem(LocalStorageKeys.LAST_REFRESH_TIME);
 
             // Call the optional logout success callback if provided
             if (config.onLogoutSuccess) {
-              config.onLogoutSuccess()
+              config.onLogoutSuccess();
             }
           } catch (error) {
             // Logout failed, call the error callback if provided
             if (config.onAuthError) {
-              config.onAuthError(error)
+              config.onAuthError(error);
             }
           }
         },
       }),
     }),
     tagTypes: ['Auth'],
-  })
+  });
 
-  return api
-}
+  return api;
+};
 
 // Export types for convenience
-export type AuthApi = ReturnType<typeof createAuthApi>
+export type AuthApi = ReturnType<typeof createAuthApi>;
 
 // Helper types for hooks
-export type UseLoginMutation = ReturnType<
-  AuthApi['endpoints']['login']['useMutation']
->
+export type UseLoginMutation = ReturnType<AuthApi['endpoints']['login']['useMutation']>;
 export type UseRefreshTokenMutation = ReturnType<
   AuthApi['endpoints']['refreshToken']['useMutation']
->
-export type UseLogoutMutation = ReturnType<
-  AuthApi['endpoints']['logout']['useMutation']
->
+>;
+export type UseLogoutMutation = ReturnType<AuthApi['endpoints']['logout']['useMutation']>;

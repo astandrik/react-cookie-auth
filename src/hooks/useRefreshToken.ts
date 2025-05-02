@@ -1,14 +1,10 @@
-import { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { setUser } from "../state/authSlice";
-import { DEFAULT_REFRESH_TIMEOUT, delay } from "../utils/constants";
-import {
-  getItemFromStorage,
-  setItemToStorage,
-  removeItemFromStorage,
-} from "../utils/storage";
-import { LocalStorageKeys } from "../utils/types";
+import { setUser } from '../state/authSlice';
+import { DEFAULT_REFRESH_TIMEOUT, delay } from '../utils/constants';
+import { getItemFromStorage, setItemToStorage, removeItemFromStorage } from '../utils/storage';
+import { LocalStorageKeys } from '../utils/types';
 
 /**
  * Custom hook for handling refresh token operations
@@ -29,16 +25,11 @@ export const useRefreshToken = (
 
   const refreshTokenFunction = useCallback(async () => {
     // Check if we need to refresh based on last refresh time
-    const lastRefreshTime = getItemFromStorage<number>(
-      LocalStorageKeys.LAST_REFRESH_TIME
-    );
+    const lastRefreshTime = getItemFromStorage<number>(LocalStorageKeys.LAST_REFRESH_TIME);
     const currentTime = Date.now();
 
     // Only refresh if there's no lastRefreshTime or if enough time has passed
-    if (
-      !lastRefreshTime ||
-      currentTime - lastRefreshTime > refreshInterval * 0.9
-    ) {
+    if (!lastRefreshTime || currentTime - lastRefreshTime > refreshInterval * 0.9) {
       let retryCount = 0;
       let success = false;
 
@@ -56,7 +47,7 @@ export const useRefreshToken = (
           }
         } catch (error: any) {
           // Handle 401 errors (unauthorized)
-          if ("status" in error && error.status === 401) {
+          if ('status' in error && error.status === 401) {
             // Clear user state on error
             dispatch(setUser(null));
             // setUser(null) already removes lastRefreshTime in authSlice
@@ -69,21 +60,12 @@ export const useRefreshToken = (
             // Wait before retrying
             await delay(retryDelay);
           } else {
-            console.error(
-              "Token refresh failed after maximum retry attempts",
-              error
-            );
+            console.error('Token refresh failed after maximum retry attempts', error);
           }
         }
       }
     }
-  }, [
-    refreshTokenMutation,
-    dispatch,
-    refreshInterval,
-    maxRetryAttempts,
-    retryDelay,
-  ]);
+  }, [refreshTokenMutation, dispatch, refreshInterval, maxRetryAttempts, retryDelay]);
 
   return refreshTokenFunction;
 };

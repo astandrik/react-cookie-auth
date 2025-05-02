@@ -1,7 +1,7 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { getItemFromStorage, setItemToStorage } from "../utils/storage";
-import { AuthState, LocalStorageKeys, User } from "../utils/types";
+import { getItemFromStorage, setItemToStorage } from '../utils/storage';
+import { AuthState, LocalStorageKeys, User } from '../utils/types';
 
 /**
  * Initialize user from localStorage if available
@@ -14,7 +14,7 @@ const initialState: AuthState = {
  * Auth slice for managing authentication state
  */
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     /**
@@ -25,7 +25,7 @@ const authSlice = createSlice({
       state.user = action.payload;
 
       // Persist user to localStorage, or remove if null
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         if (action.payload) {
           setItemToStorage(LocalStorageKeys.CURRENT_USER, action.payload);
         } else {
@@ -43,8 +43,7 @@ export const { setUser } = authSlice.actions;
 
 // Export selectors
 export const selectUser = (state: { auth: AuthState }) => state.auth.user;
-export const isAuthenticated = (state: { auth: AuthState }) =>
-  !!state.auth.user;
+export const isAuthenticated = (state: { auth: AuthState }) => !!state.auth.user;
 
 // Export reducer
 export default authSlice.reducer;

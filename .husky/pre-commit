@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run lint-staged to handle staged files
+npx lint-staged
+
+# We're using lint-staged to run ESLint and Prettier
+# TypeScript type checking is part of ESLint config via @typescript-eslint

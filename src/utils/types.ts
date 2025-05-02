@@ -10,18 +10,18 @@ export enum LocalStorageKeys {
  * User interface with basic user information
  */
 export interface User {
-  email: string
-  first_name: string
-  id: number
-  last_name: string
-  username: string
+  email: string;
+  first_name: string;
+  id: number;
+  last_name: string;
+  username: string;
 }
 
 /**
  * Authentication state interface
  */
 export interface AuthState {
-  user: User | null
+  user: User | null;
 }
 
 /**
@@ -41,28 +41,29 @@ export enum AuthErrorType {
  * API response interfaces
  */
 export interface LoginCredentials {
-  username: string
-  password: string
+  username: string;
+  password: string;
+  remember?: boolean;
 }
 
 export interface TokenResponse {
-  user: User
+  user: User;
 }
 
-export type RefreshTokenResponse = TokenResponse
+export type RefreshTokenResponse = TokenResponse;
 
 /**
  * Configuration options for the authentication library
  */
 export interface AuthLibConfig {
-  apiBaseUrl: string
-  loginEndpoint: string
-  refreshTokenEndpoint: string
-  logoutEndpoint: string
-  refreshTokenInterval: number
-  maxRetryAttempts: number
-  retryDelay: number
-  onLoginSuccess?: (user: User) => void
-  onLogoutSuccess?: () => void
-  onAuthError?: (error: any) => void
+  apiBaseUrl: string;
+  loginEndpoint: string;
+  refreshTokenEndpoint: string;
+  logoutEndpoint: string;
+  refreshTokenInterval: number;
+  maxRetryAttempts: number;
+  retryDelay: number;
+  onLoginSuccess?: (user: User) => void;
+  onLogoutSuccess?: () => void;
+  onAuthError?: (error: any) => void;
 }

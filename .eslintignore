@@ -1,0 +1,14 @@
+# Dependency directories
+node_modules/
+dist/
+
+# Build outputs
+build/
+coverage/
+
+# Config files
+*.config.js
+rollup.config.js
+
+# Generated files
+**/*.d.ts

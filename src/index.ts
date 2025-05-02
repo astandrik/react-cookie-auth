@@ -1,38 +1,25 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit';
 
-import { useRefreshToken } from './hooks/useRefreshToken'
-import { createAuthApi } from './state/authApi'
-import authReducer, {
-  isAuthenticated,
-  selectUser,
-  setUser,
-} from './state/authSlice'
-import { AuthLibConfig } from './utils/types'
+import { useRefreshToken } from './hooks/useRefreshToken';
+import { createAuthApi } from './state/authApi';
+import authReducer, { isAuthenticated, selectUser, setUser } from './state/authSlice';
+import { AuthLibConfig } from './utils/types';
 
 // Re-export components
-export * from './components'
+export * from './components';
 
 // Re-export types
-export type {
-  AuthErrorType,
-  User,
-  AuthState,
-  AuthLibConfig,
-} from './utils/types'
+export type { AuthErrorType, User, AuthState, AuthLibConfig } from './utils/types';
 
 // Re-export utility functions
-export {
-  getAuthErrorMessage,
-  isAuthError,
-  getAuthErrorType,
-} from './utils/errors'
+export { getAuthErrorMessage, isAuthError, getAuthErrorType } from './utils/errors';
 
 export {
   getItemFromStorage,
   setItemToStorage,
   removeItemFromStorage,
   clearAuthStorage,
-} from './utils/storage'
+} from './utils/storage';
 
 /**
  * Initialize the authentication library with the given configuration
@@ -42,7 +29,7 @@ export {
  */
 export function initAuth(config: AuthLibConfig) {
   // Create the auth API with the provided configuration
-  const authApi = createAuthApi(config)
+  const authApi = createAuthApi(config);
 
   // Configure the Redux store
   const store = configureStore({
@@ -50,9 +37,8 @@ export function initAuth(config: AuthLibConfig) {
       auth: authReducer,
       [authApi.reducerPath]: authApi.reducer,
     },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(authApi.middleware),
-  })
+    middleware: getDefaultMiddleware => getDefaultMiddleware().concat(authApi.middleware),
+  });
 
   // Export hooks and API endpoints for the consuming application
   return {
@@ -63,7 +49,7 @@ export function initAuth(config: AuthLibConfig) {
           refreshTokenMutation,
           config.refreshTokenInterval,
           config.maxRetryAttempts,
-          config.retryDelay,
+          config.retryDelay
         ),
       useLoginMutation: authApi.endpoints.login.useMutation,
       useLogoutMutation: authApi.endpoints.logout.useMutation,
@@ -76,5 +62,5 @@ export function initAuth(config: AuthLibConfig) {
       isAuthenticated,
       getUser: selectUser,
     },
-  }
+  };
 }
