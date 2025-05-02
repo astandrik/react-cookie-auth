@@ -4,13 +4,14 @@
   "description": "Authentication library with HTTP-only cookies and Page Visibility API for handling sleep/wake cycles",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "types": "index.d.ts",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "index.d.ts"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && node build-declarations.js",
     "test": "jest --passWithNoTests",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",

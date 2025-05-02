@@ -25,6 +25,12 @@ export default {
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
       clean: true,
+      tsconfigOverride: {
+        compilerOptions: {
+          rootDir: 'src',
+          declarationDir: 'dist'
+        }
+      }
     }),
   ],
   external: [
