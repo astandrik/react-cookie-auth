@@ -1,5 +1,7 @@
 # Auth Library
 
+[![npm version](https://img.shields.io/npm/v/react-cookie-auth.svg)](https://www.npmjs.com/package/react-cookie-auth)
+
 A standalone authentication library for React applications that implements cookie-based authentication with token refresh logic and Page Visibility API integration to prevent refresh token storms.
 
 ## Features
