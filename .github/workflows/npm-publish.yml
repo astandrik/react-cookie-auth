@@ -119,67 +119,8 @@ jobs:
           name: dist
           path: dist/
 
-  create-tag:
-    needs: [detect-version-change, validate]
-    if: |
-      github.event_name == 'push' &&
-      needs.detect-version-change.outputs.version_changed == 'true' &&
-      !startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.PAT_TOKEN }}
-
-      - name: Configure Git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
-      - name: Create and push tag
-        run: |
-          NEW_VERSION=${{ needs.detect-version-change.outputs.new_version }}
-          echo "Creating tag v$NEW_VERSION"
-          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
-          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git "v$NEW_VERSION"
-
-  create-release:
-    needs: [create-tag, detect-version-change]
-    if: |
-      github.event_name == 'push' &&
-      needs.detect-version-change.outputs.version_changed == 'true' &&
-      !startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate changelog
-        id: changelog
-        run: |
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 --exclude="$(git describe --tags --abbrev=0)" 2>/dev/null || echo "")
-          if [ -z "$PREVIOUS_TAG" ]; then
-            # If no previous tag, use all commits
-            echo "changelog=$(git log --pretty=format:"* %s (%h)" | head -10 | awk '{printf "%s\\n", $0}')" >> $GITHUB_OUTPUT
-          else
-            # If previous tag exists, use commits since that tag
-            echo "changelog=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"* %s (%h)" | awk '{printf "%s\\n", $0}')" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ needs.detect-version-change.outputs.new_version }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-
   publish:
-    needs: [build, detect-version-change]
+    needs: [build, detect-version-change, validate]
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'release' ||
