@@ -1,6 +1,6 @@
 {
   "name": "react-cookie-auth",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Authentication library with HTTP-only cookies and Page Visibility API for handling sleep/wake cycles",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
